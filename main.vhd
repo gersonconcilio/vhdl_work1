@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
- use ieee.numeric_std.ALL; 
+use ieee.numeric_std.ALL; 
 
 entity main is
     generic(
@@ -14,7 +14,7 @@ entity main is
         en_ula     : in std_logic;
         count_load : in std_logic;
 
-        sai        : out std_logic_vector((DATA_WIDTH - 7) downto 0)
+        sai        : out std_logic_vector((DATA_WIDTH - 1) downto 0)
     );
 end entity main;
 
@@ -69,7 +69,7 @@ begin
                 n   <= '0';
             elsif(rising_edge(clk))then
                 
-                rdm <= mem(to_integer(signed(pc))); --ESTÁ CERTA ESSA GAMBIARRA?
+                rdm <= mem(to_integer(signed(pc))); --ESTÁ CERTA ESSA GAMBIARRA???
                 sel <= rdm(5 downto 4); -- seletor do mux
                 
                 -- -------------O QUE SERIA O PC---------------------
