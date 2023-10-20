@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
+ use ieee.numeric_std.ALL; 
 
 entity main is
     generic(
@@ -68,7 +69,7 @@ begin
                 n   <= '0';
             elsif(rising_edge(clk))then
                 
-                rdm <= mem(pc); --POSSÍVEL FORMA DE COMO O SELECIONAR NA MEMORIA
+                rdm <= mem(to_integer(signed(pc))); --ESTÁ CERTA ESSA GAMBIARRA?
                 sel <= rdm(5 downto 4); -- seletor do mux
                 
                 -- -------------O QUE SERIA O PC---------------------
