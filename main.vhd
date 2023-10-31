@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
-use ieee.numeric_std.ALL; 
+use ieee.numeric_std.all; 
 
 entity main is
     generic(
@@ -14,7 +14,7 @@ entity main is
         en_ula     : in std_logic;
         count_load : in std_logic;
 
-        sai        : out std_logic_vector((DATA_WIDTH - 1) downto 0)
+        instrucao  : out std_logic_vector((DATA_WIDTH - 1) downto 0)
     );
 end entity main;
 
@@ -24,9 +24,12 @@ signal pc  : std_logic_vector((DATA_WIDTH - 1) downto 0);
 signal acc : std_logic_vector((DATA_WIDTH - 1) downto 0);
 signal rdm : std_logic_vector((ADDR_WIDTH - 1) downto 0);
 
--- --------- SINAIS QUE NÃO TENHO CERTEZA ---------------------------------
+
+-- --------- SINAIS QUE N?O TENHO CERTEZA --------------------------------
 signal sel : std_logic_vector((DATA_WIDTH - 2) downto 0); -- seletor do mux
 signal mul : std_logic_vector((ADDR_WIDTH - 1) downto 0); -- suporte multip
+
+
 -- ------------------------------------------------------------------------
 
 signal z   : std_logic;
@@ -37,13 +40,25 @@ type mem_dec is array (integer range 0 to 15) of std_logic_vector((ADDR_WIDTH - 
 signal mem  : mem_dec;
 signal addr : std_logic_vector((ADDR_WIDTH - 1) downto 0);
 
+
+-- ------------------------------BIT VECTOR -------------------------------
+--signal load_flag :  std_logic;
+--signal soma_flag :  std_logic;
+--signal subt_flag :  std_logic;
+--signal mult_flag :  std_logic;
+
+-- ------------------------------DECODER ----------------------------------
+signal dec : std_logic_vector((DATA_WIDTH - 1) downto 0);
+
+
+
 begin
 
     mul <= acc * rdm(3 downto 0); -- MULTIPLICACAO FORA DO PROCESS
 
-    mem(0)  <= "00000000";
+    mem(0)  <= "00000010";
     mem(1)  <= "00000000";
-    mem(2)  <= "00000000";
+    mem(2)  <= "00110100";
     mem(3)  <= "00000000";
     mem(4)  <= "00000000";
     mem(5)  <= "00000000";
@@ -56,31 +71,34 @@ begin
     mem(12) <= "00000000";
     mem(13) <= "00000000";
     mem(14) <= "00000000";
+    mem(15) <= "00000000";
 
     process(clk, res)
         begin
 
             if(res = '1')then
-                sai <= (others => '0');
                 pc  <= (others => '0');
                 acc <= (others => '0');
                 rdm <= (others => '0');
                 z   <= '0';
                 n   <= '0';
+                
+                -- DECODER
+                
+                instrucao <= (others => '0');
             elsif(rising_edge(clk))then
                 
-                rdm <= mem(to_integer(signed(pc))); --ESTÁ CERTA ESSA GAMBIARRA???
+                rdm <= mem(to_integer(signed(pc))); --EST? CERTA ESSA GAMBIARRA???
                 sel <= rdm(5 downto 4); -- seletor do mux
+                dec <= rdm(7 downto 4);
                 
                 -- -------------O QUE SERIA O PC---------------------
 
-                if(z = '1')then
-                    pc <= rdm(3 downto 0);
-                elsif(n = '1')then
-                    pc <= rdm(3 downto 0);
-                else
+                  if(count_load = '1')then
                     pc <= pc + 1;
-                end if;
+                  else
+                    pc <= rdm(3 downto 0);
+                  end if;
                 
                 -- -------------O QUE SERIA O MUX -------------------
 
@@ -94,6 +112,26 @@ begin
                     when others =>
                         acc <= mul(3 downto 0);
                 end case;
+                
+                if(acc = 4D"0")then
+                    z <= '1';
+                elsif(acc < 4D"0")then
+                    n <= '1';
+                end if;
+                
+                -- -------------O QUE SERIA O DEMUX -------------------
+                
+                case dec is
+                    when "0001" =>
+                        instrucao <= 4D"0";
+                    when "0010" =>
+                        instrucao <= 4D"1";
+                    when "0011" =>
+                        instrucao <= 4D"2";
+                    when others =>
+                        instrucao <= 4D"3";  
+                end case;
+                
 
             end if;
 
