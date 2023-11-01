@@ -25,37 +25,62 @@ signal acc : std_logic_vector((DATA_WIDTH - 1) downto 0);
 signal rdm : std_logic_vector((ADDR_WIDTH - 1) downto 0);
 
 
--- --------- SINAIS QUE N?O TENHO CERTEZA --------------------------------
+-- ----------------------SINAIS PARA A ULA --------------------------------
+signal ula : std_logic_vector((DATA_WIDTH - 1) downto 0);
 signal sel : std_logic_vector((DATA_WIDTH - 2) downto 0); -- seletor do mux
+
+
 signal mul : std_logic_vector((ADDR_WIDTH - 1) downto 0); -- suporte multip
+signal sub : std_logic_vector((ADDR_WIDTH - 1) downto 0); -- suporte subtra
+signal som : std_logic_vector((ADDR_WIDTH - 1) downto 0); -- suporte soma
 
 
--- ------------------------------------------------------------------------
+-- -------------------------------SINAIS JMP--------------------------------
 
-signal z   : std_logic;
-signal n   : std_logic;
+signal z     : std_logic;
+signal n     : std_logic;
+signal sup_z : std_logic;
+signal sup_n : std_logic;
 
--- ----------------------------MEMORIA-------------------------------------
+-- ----------------------------MEMORIA--------------------------------------
 type mem_dec is array (integer range 0 to 15) of std_logic_vector((ADDR_WIDTH - 1) downto 0);
 signal mem  : mem_dec;
 signal addr : std_logic_vector((ADDR_WIDTH - 1) downto 0);
 
 
--- ------------------------------BIT VECTOR -------------------------------
---signal load_flag :  std_logic;
---signal soma_flag :  std_logic;
---signal subt_flag :  std_logic;
---signal mult_flag :  std_logic;
-
--- ------------------------------DECODER ----------------------------------
+-- ------------------------------DECODER -----------------------------------
 signal dec : std_logic_vector((DATA_WIDTH - 1) downto 0);
 
 
 
 begin
 
-    mul <= acc * rdm(3 downto 0); -- MULTIPLICACAO FORA DO PROCESS
+    -- -------------SINAIS PARA AS OPERAÇÕES--------------------
+    mul <= acc * rdm(3 downto 0);
+    som <= acc + rdm(3 downto 0);
+    sub <= acc - rdm(3 downto 0);
+    
+    -- --------------------------ULA----------------------------
+    sel <= rdm(5 downto 4); -- seletor do mux
+    
+    ula <= rdm(3 downto 0) when sel = 2D"0" else
+           som when sel = 2D"1" else
+           sub when sel = 2D"2" else
+           mul(3 downto 0);
+    
+    -- --------------------------JMP-----------------------------
+    sup_z <= '1' when ula = 4D"0";
+    sup_n <= '1' when ula < 4D"0";
+    
+    -- ------------------------DECODER---------------------------
+    dec <= rdm(7 downto 4);
+    
+    instrucao <= 4D"0" when dec = 4D"0" else
+                 4D"2" when dec = 4D"1" else
+                 4D"4" when dec = 4D"2" else
+                 4D"8";           
 
+    -- ------------------------MEMORIA---------------------------
     mem(0)  <= "00000010";
     mem(1)  <= "00000000";
     mem(2)  <= "00110100";
@@ -72,6 +97,8 @@ begin
     mem(13) <= "00000000";
     mem(14) <= "00000000";
     mem(15) <= "00000000";
+    
+    
 
     process(clk, res)
         begin
@@ -81,58 +108,25 @@ begin
                 acc <= (others => '0');
                 rdm <= (others => '0');
                 z   <= '0';
-                n   <= '0';
-                
-                -- DECODER
-                
-                instrucao <= (others => '0');
-            elsif(rising_edge(clk))then
-                
-                rdm <= mem(to_integer(signed(pc))); --EST? CERTA ESSA GAMBIARRA???
-                sel <= rdm(5 downto 4); -- seletor do mux
-                dec <= rdm(7 downto 4);
-                
+                n   <= '0';        
+            elsif(rising_edge(clk))then     
+            
                 -- -------------O QUE SERIA O PC---------------------
-
-                  if(count_load = '1')then
+                rdm <= mem(to_integer(signed(pc))); 
+                
+                if(count_load = '1')then
                     pc <= pc + 1;
                   else
                     pc <= rdm(3 downto 0);
-                  end if;
-                
-                -- -------------O QUE SERIA O MUX -------------------
-
-                case sel is
-                    when "00" =>
-                        acc <= rdm(3 downto 0);
-                    when "01" =>
-                        acc <= acc + rdm(3 downto 0);
-                    when "10" =>
-                        acc <= acc - rdm(3 downto 0);
-                    when others =>
-                        acc <= mul(3 downto 0);
-                end case;
-                
-                if(acc = 4D"0")then
-                    z <= '1';
-                elsif(acc < 4D"0")then
-                    n <= '1';
-                end if;
-                
-                -- -------------O QUE SERIA O DEMUX -------------------
-                
-                case dec is
-                    when "0001" =>
-                        instrucao <= 4D"0";
-                    when "0010" =>
-                        instrucao <= 4D"1";
-                    when "0011" =>
-                        instrucao <= 4D"2";
-                    when others =>
-                        instrucao <= 4D"3";  
-                end case;
-                
-
+                  end if; 
+                  
+                -- -------------O QUE SERIA A ULA--------------------
+                if(en_ula = '1')then
+                    acc <= ula;
+                    z <= sup_z;
+                    n <= sup_n;
+                end if;                 
+          
             end if;
 
     end process;
