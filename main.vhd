@@ -24,6 +24,11 @@ signal pc  : std_logic_vector((DATA_WIDTH - 1) downto 0);
 signal acc : std_logic_vector((DATA_WIDTH - 1) downto 0);
 signal rdm : std_logic_vector((ADDR_WIDTH - 1) downto 0);
 
+-- -------------------------------SINAIS JMP--------------------------------
+signal z     : std_logic;
+signal n     : std_logic;
+signal sup_z : std_logic;
+signal sup_n : std_logic;
 
 -- ----------------------SINAIS PARA A ULA --------------------------------
 signal ula : std_logic_vector((DATA_WIDTH - 1) downto 0);
@@ -33,14 +38,6 @@ signal sel : std_logic_vector((DATA_WIDTH - 2) downto 0); -- seletor do mux
 signal mul : std_logic_vector((ADDR_WIDTH - 1) downto 0); -- suporte multip
 signal sub : std_logic_vector((ADDR_WIDTH - 1) downto 0); -- suporte subtra
 signal som : std_logic_vector((ADDR_WIDTH - 1) downto 0); -- suporte soma
-
-
--- -------------------------------SINAIS JMP--------------------------------
-
-signal z     : std_logic;
-signal n     : std_logic;
-signal sup_z : std_logic;
-signal sup_n : std_logic;
 
 -- ----------------------------MEMORIA--------------------------------------
 type mem_dec is array (integer range 0 to 15) of std_logic_vector((ADDR_WIDTH - 1) downto 0);
