@@ -14,7 +14,7 @@ entity main is
         en_ula     : in std_logic;
         count_load : in std_logic;
 
-        instrucao  : out std_logic_vector((DATA_WIDTH - 1) downto 0)
+        op         : out std_logic_vector((DATA_WIDTH - 1) downto 0)
     );
 end entity main;
 
@@ -52,7 +52,7 @@ signal dec : std_logic_vector((DATA_WIDTH - 1) downto 0);
 
 begin
 
-    -- -------------SINAIS PARA AS OPERA��ES--------------------
+    -- -------------SINAIS PARA AS OPERAÇÕES--------------------
     mul <= acc * rdm(3 downto 0);
     som <= acc + rdm(3 downto 0);
     sub <= acc - rdm(3 downto 0);
@@ -61,22 +61,23 @@ begin
     sel <= rdm(5 downto 4); -- seletor do mux
     
     ula <= rdm(3 downto 0) when sel = 2D"0" else
-           som when sel = 2D"1" else
-           sub when sel = 2D"2" else
-           mul(3 downto 0);
+                       som when sel = 2D"1" else
+                       sub when sel = 2D"2" else
+                       mul(3 downto 0);
     
-    -- --------------------------JMP-----------------------------
     sup_z <= '1' when ula = 4D"0";
     sup_n <= '1' when ula < 4D"0";
-    
-    -- ------------------------DECODER---------------------------
+        
+    -- ------------------------DECODER---------------------------   
+    -- dec é o "seletor" e precisa ter todas as opções op irá ligar APENAS UM BIT para indicar a operação
     dec <= rdm(7 downto 4);
     
-    instrucao <= 4D"0" when dec = 4D"0" else
-                 4D"2" when dec = 4D"1" else
-                 4D"4" when dec = 4D"2" else
-                 4D"8";           
-
+    op  <= 4D"0" when dec = 4D"0" else
+           4D"2" when dec = 4D"1" else
+           4D"4" when dec = 4D"2" else
+           4D"8" when dec = 4D"3" else
+           (others => '0');       
+           
     -- ------------------------MEMORIA---------------------------
     mem(0)  <= "00000010";
     mem(1)  <= "00000000";
