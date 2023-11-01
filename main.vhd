@@ -14,7 +14,7 @@ entity main is
         en_ula     : in std_logic;
         count_load : in std_logic;
 
-        op         : out std_logic_vector((DATA_WIDTH - 1) downto 0)
+        op         : out std_logic_vector((ADDR_WIDTH - 1) downto 0)
     );
 end entity main;
 
@@ -66,16 +66,18 @@ begin
                        mul(3 downto 0);
     
     sup_z <= '1' when ula = 4D"0";
-    sup_n <= '1' when ula < 4D"0";
+    sup_n <= '1' when ula(3) = '1';
         
     -- ------------------------DECODER---------------------------   
     -- dec é o "seletor" e precisa ter todas as opções op irá ligar APENAS UM BIT para indicar a operação
     dec <= rdm(7 downto 4);
     
-    op  <= 4D"0" when dec = 4D"0" else
-           4D"2" when dec = 4D"1" else
-           4D"4" when dec = 4D"2" else
-           4D"8" when dec = 4D"3" else
+    op  <= 8D"0"  when dec = 4D"0" else  -- load
+           8D"2"  when dec = 4D"1" else  -- soma
+           8D"4"  when dec = 4D"2" else  -- subt
+           8D"8"  when dec = 4D"3" else  -- mult
+           8D"16" when dec = 4D"4" else  -- jmp
+           8D"32" when dec = 4D"5" else  -- jmp
            (others => '0');       
            
     -- ------------------------MEMORIA---------------------------

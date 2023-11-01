@@ -12,7 +12,7 @@ entity controle is
         clock     : in std_logic;
 --      reset     : in std_logic;
         
-        op        : in std_logic_vector((DATA_WIDTH - 1) downto 0);
+        op        : in std_logic_vector((ADDR_WIDTH - 1) downto 0);
 
         sai_op    : out std_logic_vector(2 downto 0)
     );
@@ -39,38 +39,39 @@ begin
     end process fluxo;
 
     -- --------------------------- AQUI ESTA O PRÓXIMO PASSO -----------------------------
-    --         AQUI ESTÁ FALTANDO O 'CONTROLE' QUE INDICARÁ
-    --         SE O ESTADO IRÁ SEGUIR NO MESMO OU IRÁ PARA
-    --         UM PRÓXIMO ESTADO
-
+    -- JN É DETERMINADO PELO BIT MAIS A ESQUERDA
+    -- MAS NÃO NECESSÁRIAMENTE O TORNA NEGATIVO
+    -- COMO PROCEDER?
+    
     apos : process(clock)
     begin
 
         case atual is
             when state_load =>
-                if(op = 4D"1")then
+                if(op = 8D"1")then
                     proximo <= state_ula;
-                elsif(op = 4D"2")then
+                elsif(op = 8D"2")then
                     proximo <= state_jmp;
                 else
                     proximo <= state_load;
                 end if;
             when state_ula  =>
-                if(op = 4D"0")then
+                if(op = 8D"0")then
                     proximo <= state_load;
-                elsif(op = 4D"2")then
+                elsif(op = 8D"2")then
                     proximo <= state_jmp;
                 else
                     proximo <= state_ula;
                 end if;
             when others     =>  --JUMP
-                if(op = 4D"0")then
+                if(op = 8D"0")then
                     proximo <= state_load;
-                elsif(op = 4D"1")then
+                elsif(op = 8D"1")then
                     proximo <= state_ula;
                 else
                     proximo <= state_jmp;
                 end if;
+
         end case;
 
     end process;
@@ -94,6 +95,7 @@ begin
                     sai_op(1) <= '1';
                     sai_op(2) <= '0';
             end case;
+
         end if;
 
     end process saida;
