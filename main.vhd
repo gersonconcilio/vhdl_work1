@@ -113,9 +113,9 @@ begin
                 
                 if(count_load = '1')then
                     pc <= pc + 1;
-                  else
+                else
                     pc <= rdm(3 downto 0);
-                  end if; 
+                end if; 
                   
                 -- -------------O QUE SERIA A ULA--------------------
                 if(en_ula = '1')then
