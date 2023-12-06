@@ -10,11 +10,11 @@ entity controle is
     );
     port(
         clock     : in std_logic;
---      reset     : in std_logic;
+        reset     : in std_logic;
         
         op        : in std_logic_vector((ADDR_WIDTH - 1) downto 0);
 
-        sai_op    : out std_logic_vector(2 downto 0)
+        sai_op    : out std_logic_vector((ADDR_WIDTH - 3) downto 0)
     );
 end entity controle;
 
@@ -24,19 +24,24 @@ type control_logic_fsm is (state_load,
                             state_ula,
                             state_jmp);
 
-signal atual   : control_logic_fsm;
-signal proximo : control_logic_fsm;
+signal atual     : control_logic_fsm;
+signal proximo   : control_logic_fsm;
+signal sinal_ula : std_logic;
 
 begin
 
-    fluxo : process(clock)
+    sinal_ula <= (op(0) or op(1) or op(2) or op(3));
+
+    process(clock, reset)
     begin
 
-        if(rising_edge(clock))then
+        if(reset = '1')then
+            atual <= state_load;
+        elsif(rising_edge(clock))then
             atual <= proximo;
         end if;
 
-    end process fluxo;
+    end process;
 
     -- --------------------------- AQUI ESTA O PRÓXIMO PASSO -----------------------------
     -- JN É DETERMINADO PELO BIT MAIS A ESQUERDA
@@ -77,26 +82,20 @@ begin
     end process;
 
     -- ----------------- AQUI ESTA A SAIDA QUE VAI PARA A OPERATIVA ----------------------
-    saida : process(clock) --RESET????? 
+    saida : process(atual) --RESET????? 
     begin
-
-        if(rising_edge(clock))then
-            case atual is 
-                when state_load =>
-                    sai_op(0) <= '1';
-                    sai_op(1) <= '1';
-                    sai_op(2) <= '0';
-                when state_ula  =>
-                    sai_op(0) <= '1';
-                    sai_op(1) <= '1';
-                    sai_op(2) <= '1';
-                when others     =>  --state_jmp
-                    sai_op(0) <= '0';
-                    sai_op(1) <= '1';
-                    sai_op(2) <= '0';
-            end case;
-
-        end if;
+        
+        case atual is 
+            when state_load =>
+                sai_op(0) <= '1'; -- count_load
+                sai_op(1) <= '0'; -- en_ula
+            when state_ula  =>
+                sai_op(0) <= '1';
+                sai_op(1) <= '1';
+            when others     =>  --state_jmp
+                sai_op(0) <= '0';
+                sai_op(1) <= '0';
+        end case;        
 
     end process saida;
 
