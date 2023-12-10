@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all; 
 
-entity main is
+entity operativa is
     generic(
         ADDR_WIDTH : natural := 8;
         DATA_WIDTH : natural := 4
@@ -18,9 +18,9 @@ entity main is
         n          : out std_logic;
         op         : out std_logic_vector((ADDR_WIDTH - 1) downto 0)
     );
-end entity main;
+end entity operativa;
 
-architecture behavior of main is
+architecture behavior of operativa is
 
 signal pc  : std_logic_vector((DATA_WIDTH - 1) downto 0);
 signal acc : std_logic_vector((DATA_WIDTH - 1) downto 0);
@@ -76,9 +76,9 @@ begin
            8D"2"  when dec = 4D"1" else  -- soma
            8D"4"  when dec = 4D"2" else  -- subt
            8D"8"  when dec = 4D"3" else  -- mult
-           8D"16" when dec = 4D"4" else  -- jmpZ
+           8D"16" when dec = 4D"4" else  -- jmp
            8D"32" when dec = 4D"5" else  -- jmpN
-           8D"64" when dec = 4D"6" else
+           8D"64" when dec = 4D"6" else  -- jmpZ
            (others => '0');       
            
     -- ------------------------MEMORIA---------------------------

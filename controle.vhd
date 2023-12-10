@@ -9,8 +9,8 @@ entity controle is
         DATA_WIDTH : natural := 4
     );
     port(
-        clock     : in std_logic;
-        reset     : in std_logic;
+        clk       : in std_logic;
+        res       : in std_logic;
         z         : in std_logic;
         n         : in std_logic;
         
@@ -35,26 +35,23 @@ signal sinal_jzn : std_logic;
 
 begin
 
+    -- ----------- SEPAREI OS JUMPS POIS ZERO E NEGATIVO POSSUEM VALIDAÇÃO -----------
     sinal_ula <= (op(0) or op(1) or op(2) or op(3));
     sinal_jmp <= op(4);
     sinal_jzn <= (op(5) or op(6));
 
-    process(clock, reset)
+    process(clk, res)
     begin
 
-        if(reset = '1')then
+        if(res = '1')then
             atual <= state_anda;
-        elsif(rising_edge(clock))then
+        elsif(rising_edge(clk))then
             atual <= proximo;
         end if;
 
     end process;
 
-    -- --------------------------- AQUI ESTA O PRÓXIMO PASSO -----------------------------
-    -- JN É DETERMINADO PELO BIT MAIS A ESQUERDA
-    -- MAS NÃO NECESSÁRIAMENTE O TORNA NEGATIVO
-    -- COMO PROCEDER?
-    
+     
     apos : process(atual, sinal_ula, sinal_jmp)
     begin
 
@@ -91,7 +88,7 @@ begin
     end process;
 
     -- ----------------- AQUI ESTA A SAIDA QUE VAI PARA A OPERATIVA ----------------------
-    saida : process(atual) --RESET????? 
+    saida : process(atual) 
     begin
         
         case atual is 
