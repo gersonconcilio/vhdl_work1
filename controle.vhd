@@ -23,8 +23,8 @@ end entity controle;
 architecture behavior of controle is 
 
 type control_logic_fsm is (state_anda,
-                            state_ula,
-                            state_jmp);
+                           state_ula,
+                           state_jmp);
 
 signal atual     : control_logic_fsm;
 signal proximo   : control_logic_fsm;
@@ -36,9 +36,9 @@ signal sinal_jzn : std_logic;
 begin
 
     -- ----------- SEPAREI OS JUMPS POIS ZERO E NEGATIVO POSSUEM VALIDAÇÃO -----------
-    sinal_ula <= (op(0) or op(1) or op(2) or op(3));
-    sinal_jmp <= op(4);
-    sinal_jzn <= (op(5) or op(6));
+    sinal_ula <= (op(0) or op(1) or op(2) or op(3));  --ULA
+    sinal_jmp <= op(4);                               --JMP NORMAL  
+    sinal_jzn <= (op(5) or op(6));                    --JZ & JN
 
     process(clk, res)
     begin

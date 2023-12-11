@@ -12,7 +12,7 @@ entity topo is
         clock : in std_logic;
         reset : in std_logic;
 
-        z     : out std_logic
+        z     : out std_logic  --APENAS PARA TER UMA SAIDA
     );
 end entity topo;
 
@@ -20,9 +20,8 @@ architecture behavior of topo is
 
 signal aux_z  : std_logic;
 signal aux_n  : std_logic;
-signal aux_op : std_logic_vector((ADDR_WIDTH_ex - 1) downto 0);
-signal aux_sai_op : std_logic_vector((DATA_WIDTH_ex - 3) downto 0);
 signal aux_entra_op : std_logic_vector((ADDR_WIDTH_ex - 1) downto 0);
+signal aux_sai_op : std_logic_vector((DATA_WIDTH_ex - 3) downto 0);
 
 
 component operativa is
